@@ -18,31 +18,39 @@ Bot.prototype.tweet = function(msg) {
 
     twit.post('statuses/update', { status: msg }, function(err, data, response) {
         if(err) {
+            console.error(err.message);
             console.error('Fail to send tweet: ' + msg);
             return;
         }
         console.log('Tweet sended: ' + msg);
     })
-}
+};
 
 Bot.prototype.tweetImage = function(msg, img) {
     var twit = this.twit;
 
-    var b64content = fs.readFileSync(img, { encoding: 'base64' })
+    var b64content = fs.readFileSync(img, { encoding: 'base64' });
 
     twit.post('media/upload', { media: b64content }, function (err, data, response) {
+        if(err) {
+            console.error(err.message);
+            console.error('Fail to send tweet: ' + msg);
+            return;
+        }
+
         var mediaIdStr = data.media_id_string,
-            params = { status: msg, media_ids: [mediaIdStr] }
+            params = { status: msg, media_ids: [mediaIdStr] };
 
         twit.post('statuses/update', params, function (err, data, response) {
             if(err) {
+                console.error(err.message);
                 console.error('Fail to send tweet: ' + msg);
                 return;
           }
           console.log('Tweet sended: ' + msg);
         })
     })
-}
+};
 
 
 Bot.prototype.reply = function(tweet, msg) {
@@ -58,12 +66,13 @@ Bot.prototype.reply = function(tweet, msg) {
 
     twit.post('statuses/update', { status: msg, in_reply_to_status_id: tweet.id }, function(err, data, response) {
         if(err) {
+            console.error(err.message);
             console.error('Fail to send tweet: ' + msg);
             return;
         }
         console.log('Tweet sended to: @' + tweet.user.screen_name + ': ' + msg);
     })
-}
+};
 
 
 Bot.prototype.replyImage = function(tweet, msg, img) {
@@ -80,21 +89,28 @@ Bot.prototype.replyImage = function(tweet, msg, img) {
     var b64content = fs.readFileSync(img, { encoding: 'base64' });
 
     twit.post('media/upload', { media: b64content }, function (err, data, response) {
+        if(err) {
+            console.error(err.message);
+            console.error('Fail to send tweet: ' + msg);
+            return;
+        }
+
         var mediaIdStr = data.media_id_string,
-            params = { status: msg, in_reply_to_status_id: tweet.id, media_ids: [mediaIdStr] }
+            params = { status: msg, in_reply_to_status_id: tweet.id, media_ids: [mediaIdStr]};
 
         twit.post('statuses/update', params, function(err, data, response) {
             if(err) {
+                console.error(err.message);
                 console.error('Fail to send tweet: ' + msg);
                 return;
             }
             console.log('Tweet sended to: @' + tweet.user.screen_name + ': ' + msg);
         })
     })
-}
+};
 
 Bot.prototype.listen = function (what, onTweet) {
     var stream = this.twit.stream('statuses/filter', { track: what });
 
     stream.on('tweet', onTweet);
-}
+};
